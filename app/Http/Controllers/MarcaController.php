@@ -21,7 +21,7 @@ class MarcaController extends Controller
     {
       //  $marcas = Marca::all(); // utilizando o metodo de forma estatica
       $marcas = $this->marca->all();
-        return $marcas;
+        return response()->json($marcas, 200);
     }
 
 
@@ -35,7 +35,7 @@ class MarcaController extends Controller
     {
        //$marca =  Marca::create($request->all());
        $marca = $this->marca->create($request->all());
-        return $marca;
+        return response()->json($marca, 201);
     }
 
     /**
@@ -47,7 +47,10 @@ class MarcaController extends Controller
     public function show($id)
     {
         $marca = $this->marca->find($id);
-        return $marca;
+        if($marca === null){
+            return response()->json(['msg' => 'Nada a mostrar'], 404);
+        }
+        return response()->json($marca, 200);
     }
 
 
@@ -62,9 +65,13 @@ class MarcaController extends Controller
     {
         // $marca->update($request->all());
         $marca = $this->marca->find($id);
+        if($marca === null){
+           
+            return response()->json(['msg' => 'Impossivel realizar a atualização'], 404);
+        }
         $marca->update($request->all());
 
-        return $marca;
+        return response()->json($marca, 200);
     }
 
     /**
@@ -77,9 +84,16 @@ class MarcaController extends Controller
     {
 
       $marca = $this->marca->find($id);
+
+      if($marca === null){
+
+        return response()->json(['msg' => 'Impossivel deletar'], 404);
+        
+    }
+
       $marca->delete();
 
-      return ['msg' => 'A marca foi removida'];
+      return response(['msg' => 'A marca foi removida'], 200);
 
     }
 }
