@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MarcaController extends Controller
 {
@@ -34,18 +35,24 @@ class MarcaController extends Controller
     public function store(Request $request)
     {
        //$marca =  Marca::create($request->all());
-       $regras = [
-           'nome' => 'required|unique:marcas',
-           'imagem' => 'required'
-       ];
-       $feedback = [
-           'required' => 'O campo :attribute é obrigatório',
-           'nome.unique' => 'O nome da marca já existe'
-       ];
+  
 
-       $request->validate($regras, $feedback);
+       $request->validate($this->marca->rules(), $this->marca->feedback());
+      
+       // meios de retornar o que vem do requst (text)
+        //dd($request->nome);
+        //dd($request->get('nome));
+        //dd($request->input('nome));
+        //dd($request->file('imagem')); // ver se esta vindo parametros da imagem
+        $imagem = $request->file('imagem');
+        $image_urn = $imagem->store('imagens', 'public');
 
-       $marca = $this->marca->create($request->all());
+        $marca = $this->marca->create([
+            'nome' => $request->nome,
+            'imagem' => $image_urn
+        ]);
+        
+        
         return response()->json($marca, 201);
     }
 
@@ -76,11 +83,45 @@ class MarcaController extends Controller
     {
         // $marca->update($request->all());
         $marca = $this->marca->find($id);
+
         if($marca === null){
            
             return response()->json(['msg' => 'Impossivel realizar a atualização'], 404);
         }
-        $marca->update($request->all());
+
+       if($request->method() == 'PATCH'){
+           $regrasDinamicas = array();
+
+          // $teste = '';
+
+           //percorrendo todas as regras definidas
+           foreach($marca->rules() as $input => $regra){
+         //       $teste .= 'Input: ' . $input. 'Regra: ' .$regra. '<br>'; //teste para imprimir as regras 
+                if(array_key_exists($input, $request->all())){
+                    $regrasDinamicas[$input] = $regra;
+                }
+           }
+          
+           $request->validate($regrasDinamicas, $marca->feedback());
+        //   return $teste;
+       }else{
+        $request->validate($marca->rules(), $marca->feedback());
+       }
+
+       //remove o arquivo caso um novo arquivo tenha sido enviado no request
+       if($request->file('imagem')){
+            Storage::disk('public')->delete($marca->imagem);
+       }
+
+       $imagem = $request->file('imagem');
+       $imagem_urn = $imagem->store('imagens', 'public');
+
+     
+       
+        $marca->update([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn
+        ]);
 
         return response()->json($marca, 200);
     }
@@ -101,6 +142,8 @@ class MarcaController extends Controller
         return response()->json(['msg' => 'Impossivel deletar'], 404);
         
     }
+    
+    Storage::disk('public')->delete($marca->imagem);
 
       $marca->delete();
 

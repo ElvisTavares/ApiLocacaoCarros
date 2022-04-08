@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class ModeloController extends Controller
 {
+    public function __construct(Modelo $modelo)
+    {
+        $this->modelo = $modelo;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,17 +18,8 @@ class ModeloController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $modelo = $this->modelo->all();
+        return response()->json($modelo, 200);
     }
 
     /**
@@ -35,7 +30,25 @@ class ModeloController extends Controller
      */
     public function store(Request $request)
     {
-        //
+      
+        $request->validate($this->modelo->rules());
+
+        $imagem = $request->file('imagem');
+        $imagem_urn = $imagem->store('imagens/modelos', 'public');
+
+        $modelo = $this->modelo->create([
+            'marca_id' => $request->marca_id,
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+            'numero_portas' => $request->numero_portas,
+            'lugares' => $request->lugares,
+            'air_bag' => $request->air_bag,
+            'abs' => $request->abs
+            
+        ]);
+       
+
+        return response()->json($modelo, 201);
     }
 
     /**
@@ -44,9 +57,14 @@ class ModeloController extends Controller
      * @param  \App\Models\Modelo  $modelo
      * @return \Illuminate\Http\Response
      */
-    public function show(Modelo $modelo)
+    public function show($id)
     {
-        //
+        $modelo = $this->modelo->find($id);
+        if($modelo == null){
+            return response()->json(['erro' => 'Recurso pesquisado não existe'], 404);
+        }
+
+        return response()->json($modelo, 200);
     }
 
     /**
