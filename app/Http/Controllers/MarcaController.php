@@ -21,7 +21,7 @@ class MarcaController extends Controller
     public function index()
     {
       //  $marcas = Marca::all(); // utilizando o metodo de forma estatica
-      $marcas = $this->marca->all();
+      $marcas = $this->marca->with('modelos')->get();
         return response()->json($marcas, 200);
     }
 
@@ -64,7 +64,7 @@ class MarcaController extends Controller
      */
     public function show($id)
     {
-        $marca = $this->marca->find($id);
+        $marca = $this->marca->with('modelos')->find($id); // no with e o medodo que esta no model
         if($marca === null){
             return response()->json(['msg' => 'Nada a mostrar'], 404);
         }
@@ -116,12 +116,15 @@ class MarcaController extends Controller
        $imagem = $request->file('imagem');
        $imagem_urn = $imagem->store('imagens', 'public');
 
+     $marca->fill($request->all());
+     $marca->imagem = $imagem_urn;
      
        
-        $marca->update([
+     $marca->save();
+     /*    $marca->update([
             'nome' => $request->nome,
             'imagem' => $imagem_urn
-        ]);
+        ]); */
 
         return response()->json($marca, 200);
     }
