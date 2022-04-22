@@ -2,30 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreCarroRequest;
-use App\Http\Requests\UpdateCarroRequest;
+use Illuminate\Http\Request;
+
 use App\Models\Carro;
+use App\Repositories\CarroRepository;
 
 class CarroController extends Controller
 {
+    public function __construct(Carro $carro)
+    {
+        $this->carro = $carro;
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        
+        $carroRepository = new CarroRepository($this->carro);
+        if($request->has('atributos_modelos')){
+            $atributos_modelos = 'modelos:id,' . $request->atributos_modelos;
+            $carroRepository->selectAtributosRegistrosRelacionados($atributos_modelos);
+        }else{
+            $carroRepository->selectAtributosRegistrosRelacionados('modelos');
+        }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        if($request->has('atributos')){
+            $carroRepository->selectAtributos($request->atributos);
+        }
+        
+
+        return response()->json($carroRepository->getResultado(), 200);
+
+        
     }
 
     /**
@@ -34,9 +45,18 @@ class CarroController extends Controller
      * @param  \App\Http\Requests\StoreCarroRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreCarroRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate($this->carro->rules());
+        
+        $carro = $this->carro->create([
+            'modelo_id' => $request->modelo_id,
+            'placa' => $request->placa,
+            'disponivel' => $request->disponivel,
+            'km' => $request->km
+        ]);
+
+        return response()->json($carro, 201);
     }
 
     /**
