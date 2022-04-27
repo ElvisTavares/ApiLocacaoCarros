@@ -22,11 +22,11 @@ class CarroController extends Controller
     {
         
         $carroRepository = new CarroRepository($this->carro);
-        if($request->has('atributos_modelos')){
-            $atributos_modelos = 'modelos:id,' . $request->atributos_modelos;
-            $carroRepository->selectAtributosRegistrosRelacionados($atributos_modelos);
+        if($request->has('atributos_modelo')){
+            $atributos_modelo = 'modelo:id,' . $request->atributos_modelo;
+            $carroRepository->selectAtributosRegistrosRelacionados($atributos_modelo);
         }else{
-            $carroRepository->selectAtributosRegistrosRelacionados('modelos');
+            $carroRepository->selectAtributosRegistrosRelacionados('modelo');
         }
 
         if($request->has('atributos')){
@@ -65,9 +65,14 @@ class CarroController extends Controller
      * @param  \App\Models\Carro  $carro
      * @return \Illuminate\Http\Response
      */
-    public function show(Carro $carro)
+    public function show($id)
     {
-        //
+        $carro = $this->carro->with('modelo')->find($id);
+        if($carro === null){
+            return response()->json(['erro' => 'Recurso pesquisado não existe'], 404);
+        }
+
+        return response()->json($carro, 200);
     }
 
     /**
@@ -88,9 +93,34 @@ class CarroController extends Controller
      * @param  \App\Models\Carro  $carro
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCarroRequest $request, Carro $carro)
+    public function update(Request $request, $id)
     {
-        //
+        $carro = $this->carro->find($id);
+
+        if($carro === null){
+            return response()->json(['erro' => 'Impossivel realizar operação'], 404);
+        }
+
+        if($request->method() === 'PATCH'){
+            $regrasDinamicas = array();
+
+            foreach($carro->rules() as $input => $regra){
+                if(array_key_exists($input, $request->all())){
+                    $regrasDinamicas[$input] = $regra;
+                
+                }
+            }
+
+            $request->validate($regrasDinamicas);
+        }else{
+            $request->validate($carro->rules());
+        }
+
+        $carro->fill($request->all());
+        
+        $carro->save();
+
+        return response()->json($carro, 200);
     }
 
     /**
@@ -99,8 +129,15 @@ class CarroController extends Controller
      * @param  \App\Models\Carro  $carro
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Carro $carro)
+    public function destroy($id)
     {
-        //
+        $carro = $this->carro->find($id);
+
+        if($carro === null) {
+            return response()->json(['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'], 404);
+        }
+
+        $carro->delete();
+        return response()->json(['msg' => 'Carro deletado com sucesso'], 200);
     }
 }

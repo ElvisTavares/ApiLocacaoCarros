@@ -5,18 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
+use App\Repositories\ClienteRepository;
 
 class ClienteController extends Controller
 {
+
+    public function __construct(Cliente $cliente)
+    {
+        $this->cliente = $cliente;
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clientes = Cliente::all();
-        return $clientes;
+        $clienteRepository = new ClienteRepository($this->cliente);
+
+         return response()->json($clienteRepository->getResultado(), 200);
     }
 
 
@@ -29,8 +36,13 @@ class ClienteController extends Controller
     public function store(Request $request)
     {
         
-        $cliente = Cliente::create($request->all());
-        return $cliente;
+       $request->validate($this->cliente->rules());
+
+       $cliente = $this->cliente->create([
+           'nome' => $request->nome
+       ]);
+
+       return response()->json($cliente, 201);
       
     }
 
@@ -40,9 +52,15 @@ class ClienteController extends Controller
      * @param  \App\Models\Cliente  $cliente
      * @return \Illuminate\Http\Response
      */
-    public function show(Cliente $cliente)
+    public function show($id)
     {
-        return $cliente;
+        $cliente = $this->cliente->find($id);
+
+        if($cliente === null){
+            return response()->json(['erro'=>'Recurso pesquisado não existe']);
+        }
+
+        return response()->json($cliente, 200);
     }
 
     /**
@@ -52,10 +70,31 @@ class ClienteController extends Controller
      * @param  \App\Models\Cliente  $cliente
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Cliente $cliente)
+    public function update(Request $request, $id)
     {
-        $cliente->update($request->all());
-        return $cliente;
+        $cliente = $this->cliente->find($id);
+
+        if($cliente === null){
+            return response()->json(['erro'=> 'Impossivel realizar a atualização']);
+        }
+
+        if($request->method() === 'PATCH'){
+            $regrasDinamicas = array();
+
+            foreach($cliente->rules() as $input => $regra){
+                if(array_key_exists($input, $request->all())){
+                    $regrasDinamicas[$input] = $regra;
+                }
+            }
+            $request->validate($regrasDinamicas);
+        }else{
+            $request->validate($cliente->rules());
+        }
+
+        $cliente->fill($request->all());
+        $cliente->save();
+
+        return response()->json($cliente, 200);
     }
 
     /**
@@ -64,9 +103,15 @@ class ClienteController extends Controller
      * @param  \App\Models\Cliente  $cliente
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Cliente $cliente)
+    public function destroy($id)
     {
+        $cliente = $this->cliente->find($id);
+
+        if($cliente === null) {
+            return response()->json(['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'], 404);
+        }
+
         $cliente->delete();
-        return ['msg' => 'Deletado com sucesso'];
+        return response()->json(['msg' => 'O cliente foi removido com sucesso!'], 200);
     }
 }

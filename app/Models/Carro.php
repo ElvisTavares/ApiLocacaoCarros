@@ -21,7 +21,7 @@ class Carro extends Model
         ];
     }
 
-    public function modelos()
+    public function modelo()
     {
         return $this->belongsTo('App\Models\Modelo');
     }
