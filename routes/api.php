@@ -23,7 +23,7 @@ Route::get('/', function () {
 });
 
 // Route::resource('/test', ['App\Http\Controllers\ClienteController::class']);
-Route::apiResource('cliente', 'ClienteController');
+Route::apiResource('cliente', 'ClienteController')->middleware('jwt.auth');
 Route::apiResource('carro', 'CarroController');
 Route::apiResource('locacao', 'LocacaoController');
 Route::apiResource('marca', 'MarcaController');
