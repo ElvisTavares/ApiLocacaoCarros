@@ -22,14 +22,20 @@ Route::get('/', function () {
     return['Nome' => 'Elvis'];
 });
 
+Route::prefix('v1')->middleware('jwt.auth')->group(function(){
+    Route::post('me', 'AuthController@me');
+    Route::apiResource('cliente', 'ClienteController');
+    Route::apiResource('carro', 'CarroController');
+    Route::apiResource('locacao', 'LocacaoController');
+    Route::apiResource('marca', 'MarcaController');
+    Route::apiResource('modelo', 'ModeloController');
+    Route::post('refresh', 'AuthController@refresh');
+    Route::post('logout', 'AuthController@logout');
+});
+
 // Route::resource('/test', ['App\Http\Controllers\ClienteController::class']);
-Route::apiResource('cliente', 'ClienteController')->middleware('jwt.auth');
-Route::apiResource('carro', 'CarroController');
-Route::apiResource('locacao', 'LocacaoController');
-Route::apiResource('marca', 'MarcaController');
-Route::apiResource('modelo', 'ModeloController');
+
 
 Route::post('login', 'AuthController@login');
-Route::post('logout', 'AuthController@logout');
-Route::post('refresh', 'AuthController@refresh');
-Route::post('me', 'AuthController@me');
+
+
