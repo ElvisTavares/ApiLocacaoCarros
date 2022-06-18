@@ -4,10 +4,9 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Login</div>
-
+                <div class="card-header">Logina</div>
                 <div class="card-body">
-                    <form method="POST" action="">
+                    <form method="POST" action="" @submit.prevent="login($event)">
                     <input type="hidden" name="_token" :value="csrf_token">
 
                         <div class="form-group row">
@@ -61,6 +60,12 @@
 
 <script>
     export default {
-        props: ['csrf_token']
+        props: ['csrf_token'],
+        
+        methods: {
+            login(e){
+                console.log('chegamos aqui')
+            }
+        }
     }
 </script>

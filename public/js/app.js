@@ -2160,9 +2160,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['csrf_token']
+  props: ['csrf_token'],
+  methods: {
+    login: function login(e) {
+      console.log('chegamos aqui');
+    }
+  }
 });
 
 /***/ }),
@@ -37769,23 +37773,35 @@ var render = function () {
     _c("div", { staticClass: "row justify-content-center" }, [
       _c("div", { staticClass: "col-md-8" }, [
         _c("div", { staticClass: "card" }, [
-          _c("div", { staticClass: "card-header" }, [_vm._v("Login")]),
+          _c("div", { staticClass: "card-header" }, [_vm._v("Logina")]),
           _vm._v(" "),
           _c("div", { staticClass: "card-body" }, [
-            _c("form", { attrs: { method: "POST", action: "" } }, [
-              _c("input", {
-                attrs: { type: "hidden", name: "_token" },
-                domProps: { value: _vm.csrf_token },
-              }),
-              _vm._v(" "),
-              _vm._m(0),
-              _vm._v(" "),
-              _vm._m(1),
-              _vm._v(" "),
-              _vm._m(2),
-              _vm._v(" "),
-              _vm._m(3),
-            ]),
+            _c(
+              "form",
+              {
+                attrs: { method: "POST", action: "" },
+                on: {
+                  submit: function ($event) {
+                    $event.preventDefault()
+                    return _vm.login($event)
+                  },
+                },
+              },
+              [
+                _c("input", {
+                  attrs: { type: "hidden", name: "_token" },
+                  domProps: { value: _vm.csrf_token },
+                }),
+                _vm._v(" "),
+                _vm._m(0),
+                _vm._v(" "),
+                _vm._m(1),
+                _vm._v(" "),
+                _vm._m(2),
+                _vm._v(" "),
+                _vm._m(3),
+              ]
+            ),
           ]),
         ]),
       ]),
@@ -37868,7 +37884,7 @@ var staticRenderFns = [
             { staticClass: "form-check-label", attrs: { for: "remember" } },
             [
               _vm._v(
-                "\r\n                                        Mantenha-me conectado\r\n                                    "
+                "\n                                        Mantenha-me conectado\n                                    "
               ),
             ]
           ),
@@ -37887,14 +37903,14 @@ var staticRenderFns = [
           { staticClass: "btn btn-primary", attrs: { type: "submit" } },
           [
             _vm._v(
-              "\r\n                                   Login\r\n                                "
+              "\n                                   Login\n                                "
             ),
           ]
         ),
         _vm._v(" "),
         _c("a", { staticClass: "btn btn-link", attrs: { href: "#" } }, [
           _vm._v(
-            "\r\n                                        Esqueci a senha\r\n                                    "
+            "\n                                        Esqueci a senha\n                                    "
           ),
         ]),
       ]),
