@@ -41,7 +41,10 @@
              <!--card de listagem-->
             <card-component titulo="Relação de marcas">
                 <template v-slot:conteudo>
-                     <table-component></table-component>
+                     <table-component 
+                     :dados="marcas"
+                     :titulos="['id', 'nome','imagem']"
+                     ></table-component>
                 </template>
 
                   <template v-slot:rodape>
@@ -51,6 +54,11 @@
             <!--fim card de listagem-->
 
         <modal-component id="modalMarca" titulo="Adicionar Marca">
+
+          <template v-slot:alertas>
+            <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Cadastrado com sucesso" v-if="transacaoStatus == 'adicionado'"></alert-component>
+            <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar a marca" v-if="transacaoStatus == 'erro'"></alert-component>
+          </template>
           <template v-slot:conteudo>
             <div class="form-group">
               <input-container-component 
@@ -83,7 +91,7 @@
             <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
         </template>
         </modal-component>
-
+     
         </div>
     </div>
 </div>
@@ -109,10 +117,30 @@ import axios from 'axios';
         return {
           urlBase: 'http://localhost:8000/api/v1/marca',
           nomeMarca: '',
-          arquivoImagem: []
+          arquivoImagem: [],
+          transacaoStatus: '',
+          transacaoDetalhes: {},
+          marcas: []
         }
       },
       methods: {
+        carregarLista() {
+          
+          let config ={
+            headers: {
+                'Accept': 'application/json',
+              'Authorization': this.token
+            }
+          }
+          axios.get(this.urlBase, config)
+                .then(response => {
+                  this.marcas = response.data
+                  console.log(response)
+                })
+                .catch(errors => {
+                  console.log(errors)
+                })
+        },
         carregarImagem(e){
           this.arquivoImagem = e.target.files
         },
@@ -133,12 +161,23 @@ import axios from 'axios';
 
           axios.post(this.urlBase, formData, config)
               .then(response => {
-                console.log(response)
+                this.transacaoStatus = 'adicionado'
+                this.transacaoDetalhes = {
+                  mensagem: 'ID do registro: ' +response.data.id
+                }
+               console.log(response)
               })
               .catch(errors => {
-                console.log(errors)
+                this.transacaoStatus = 'erro'
+                this.transacaoDetalhes = {
+                  mensagem: errors.response.data.message,
+                  dados: errors.response.data.errors
+                }
               })
         }
+      },
+      mounted(){
+        this.carregarLista()
       }
 
     }
