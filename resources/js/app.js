@@ -4,9 +4,23 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+
 require('./bootstrap');
 
 window.Vue = require('vue').default;
+
+import Vue from 'vue';
+/* importando e configurando o vuex */
+
+import Vuex from 'Vuex'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+    state : {
+        teste: 'Testeeeee',
+    }
+})
 
 /**
  * The following block of code may be used to automatically register your
@@ -39,4 +53,7 @@ Vue.component('paginate-component', require('./components/Paginate.vue').default
 
 const app = new Vue({
     el: '#app',
+    store
 });
+
+
