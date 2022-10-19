@@ -45,7 +45,7 @@
                      :dados="marcas.data"
                      :visualizar="{visivel: true, dataToggle: 'modal', dataTarget: '#modalMarcaVisualizar'}"
                      :atualizar="true"
-                     :remover="true"
+                     :remover="{visivel: true, dataToggle: 'modal', dataTarget: '#modalMarcaRemover'}"
                      :titulos="{
                       id:{titulo: 'ID', tipo: 'text'},
                       nome:{titulo: 'Nome', tipo: 'text'},
@@ -126,7 +126,7 @@
               </input-container-component>
 
               <input-container-component titulo="Imagem da marca">
-              <img :src="'/storage/'+$store.state.item.imagem" v-if="+$store.state.item.imagem">
+              <img :src="'/storage/'+$store.state.item.imagem" v-if="$store.state.item.imagem" width="60" height="60">
               </input-container-component>
 
               <input-container-component titulo="Data de criação">
@@ -137,6 +137,23 @@
             <template v-slot:rodape>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
             </template>
+        </modal-component>
+
+        <modal-component id="modalMarcaRemover" titulo="Remover Marca">
+          <template v-slot:alertas></template>
+          <template v-slot:conteudo>
+            <input-container-component titulo="Id da marca">
+              <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+            </input-container-component>
+        
+            <input-container-component titulo="Nome da marca">
+              <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+            </input-container-component>
+        
+          </template>
+          <template v-slot:rodape>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </template>
         </modal-component>
 
         </div>
